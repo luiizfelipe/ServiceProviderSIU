@@ -71,13 +71,13 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IncludePath>C:\Program Files %28x86%29\Common Files\XFS\SDK\INCLUDE;$(IncludePath)</IncludePath>
+    <IncludePath>C:\Program Files %28x86%29\Common Files\XFS\SDK\INCLUDE;D:\Projetos\CPP\SPI\XFS\Common;$(IncludePath)</IncludePath>
     <PublicIncludeDirectories>$(PublicIncludeDirectories)</PublicIncludeDirectories>
     <LibraryPath>C:\Program Files %28x86%29\Common Files\XFS\SDK\LIB;$(LibraryPath)</LibraryPath>
     <TargetName>siu</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <IncludePath>C:\Program Files %28x86%29\Common Files\XFS\SDK\INCLUDE;$(IncludePath)</IncludePath>
+    <IncludePath>C:\Program Files %28x86%29\Common Files\XFS\SDK\INCLUDE;D:\Projetos\CPP\SPI\XFS\Common;$(IncludePath)</IncludePath>
     <PublicIncludeDirectories>$(PublicIncludeDirectories)</PublicIncludeDirectories>
     <LibraryPath>C:\Program Files %28x86%29\Common Files\XFS\SDK\LIB;$(LibraryPath)</LibraryPath>
     <TargetName>siu</TargetName>
@@ -155,11 +155,15 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\Common\util.cpp" />
     <ClCompile Include="dllmain.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include=".gitignore" />
     <None Include="siu.def" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\Common\util.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
