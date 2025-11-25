@@ -35,10 +35,10 @@ HRESULT extern WINAPI WFPLock(HSERVICE hService, DWORD dwTimeOut, HWND hWnd, REQ
 
 HRESULT extern WINAPI WFPOpen(HSERVICE hService, LPCSTR lpszLogicalName, HAPP hApp, LPCSTR lpszAppID, DWORD dwTraceLevel, DWORD dwTimeOut, HWND hWnd, REQUESTID ReqID, HPROVIDER hProvider, 
     DWORD dwSPIVersionsRequired, LPWFSVERSION lpSPIVersion, DWORD dwSrvcVersionsRequired, LPWFSVERSION lpSrvcVersion){ 
+    HRESULT hResult = WFS_ERR_INTERNAL_ERROR;
     TRACE("Entrei na função WFPOpen...");
 
     hService = 1;
-
 
     TRACE("lpszLogicalName (SIU): %s", lpszLogicalName);
     TRACE("hApp: %02X", hApp);
@@ -85,10 +85,28 @@ HRESULT extern WINAPI WFPOpen(HSERVICE hService, LPCSTR lpszLogicalName, HAPP hA
 
     Sleep(2000);
 
+    hResult = WFS_SUCCESS;
 
+    WFSRESULT wfsResLocal;
+    memset(&wfsResLocal, 0, sizeof(wfsResLocal));
 
+    wfsResLocal.hResult = hResult;
+    wfsResLocal.hService = hService;
+    wfsResLocal.RequestID = ReqID;
+    GetSystemTime(&wfsResLocal.tsTimestamp);
  
+    LPWFSRESULT lpPostRest;
 
+    if (WFMAllocateBuffer(sizeof(WFSRESULT), WFS_MEM_ZEROINIT | WFS_MEM_SHARE, (LPVOID*)&lpPostRest) != WFS_SUCCESS) {
+        TRACE("Post Result: ERROR WFMAllocateBuffer");
+        return WFS_ERR_INTERNAL_ERROR;
+    }
+
+    memcpy(lpPostRest, &wfsResLocal, sizeof(WFSRESULT));
+
+    PostMessage(hWnd, WFS_OPEN_COMPLETE, 0, (LPARAM)lpPostRest);
+
+    TRACE("WFPOpen Finalizado. hResult: %d", hResult);
     return WFS_SUCCESS;
 }
 
