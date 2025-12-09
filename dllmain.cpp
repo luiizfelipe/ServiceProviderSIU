@@ -85,35 +85,12 @@ HRESULT extern WINAPI WFPOpen(HSERVICE hService, LPCSTR lpszLogicalName, HAPP hA
 
     Sleep(2000);
 
-    hResult = WFS_SUCCESS;
-
-    WFSRESULT wfsResLocal;
-    memset(&wfsResLocal, 0, sizeof(wfsResLocal));
-
-    wfsResLocal.hResult = hResult;
-    wfsResLocal.hService = hService;
-    wfsResLocal.RequestID = ReqID;
-    GetSystemTime(&wfsResLocal.tsTimestamp);
- 
-    LPWFSRESULT lpPostRest;
-
-    if (WFMAllocateBuffer(sizeof(WFSRESULT), WFS_MEM_ZEROINIT | WFS_MEM_SHARE, (LPVOID*)&lpPostRest) != WFS_SUCCESS) {
-        TRACE("Post Result: ERROR WFMAllocateBuffer");
-        return WFS_ERR_INTERNAL_ERROR;
-    }
-
-    memcpy(lpPostRest, &wfsResLocal, sizeof(WFSRESULT));
-
-    PostMessage(hWnd, WFS_OPEN_COMPLETE, 0, (LPARAM)lpPostRest);
+    SendPostMessage(hWnd,hResult,hService,ReqID, WFS_OPEN_COMPLETE);
 
     TRACE("WFPOpen Finalizado. hResult: %d", hResult);
     return WFS_SUCCESS;
 }
 
-HRESULT extern WINAPI WFPRegister(HSERVICE hService, DWORD dwEventClass, HWND hWndReg, HWND hWnd, REQUESTID ReqID){ 
-    TRACE("Entrei na função WFPRegister...");
-    return 	WFS_ERR_INTERNAL_ERROR;
-}
 
 HRESULT extern WINAPI WFPSetTraceLevel(HSERVICE hService, DWORD dwTraceLevel){ 
     TRACE("Entrei na função WFPSetTraceLevel...");
@@ -130,6 +107,29 @@ HRESULT extern WINAPI WFPUnlock(HSERVICE hService, HWND hWnd, REQUESTID ReqID){
     return 	WFS_ERR_INTERNAL_ERROR;
 }
 
+
+
+BOOL SendPostMessage(HWND hWnd, HRESULT hResult, HSERVICE hService,  REQUESTID ReqID, UINT Msg) {
+    WFSRESULT wfsResLocal;
+    memset(&wfsResLocal, 0, sizeof(wfsResLocal));
+
+    wfsResLocal.hResult = hResult;
+    wfsResLocal.hService = hService;
+    wfsResLocal.RequestID = ReqID;
+    GetSystemTime(&wfsResLocal.tsTimestamp);
+
+    LPWFSRESULT lpPostRest;
+
+    if (WFMAllocateBuffer(sizeof(WFSRESULT), WFS_MEM_ZEROINIT | WFS_MEM_SHARE, (LPVOID*)&lpPostRest) != WFS_SUCCESS) {
+        TRACE("Post Result: ERROR WFMAllocateBuffer");
+        return false;
+    }
+
+    memcpy(lpPostRest, &wfsResLocal, sizeof(WFSRESULT));
+
+    PostMessage(hWnd, Msg, 0, (LPARAM)lpPostRest);
+    return true;
+}
 
 BOOL APIENTRY DllMain( HMODULE hModule,
                        DWORD  ul_reason_for_call,
