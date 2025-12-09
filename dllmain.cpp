@@ -2,6 +2,10 @@
 #include <xfsspi.h>
 #include <xfssiu.h>
 #include "util.h"
+#include <vector>
+
+
+vector<HWND> windows = {};
 
 HRESULT extern WINAPI WFPCancelAsyncRequest(HSERVICE hService, REQUESTID RequestID){
     TRACE("Entrei na função WFPCancelAsyncRequest...");
@@ -10,6 +14,29 @@ HRESULT extern WINAPI WFPCancelAsyncRequest(HSERVICE hService, REQUESTID Request
 
 HRESULT extern WINAPI WFPClose(HSERVICE hService, HWND hWnd, REQUESTID ReqID){
     TRACE("Entrei na função WFPClose...");
+    return 	WFS_ERR_INTERNAL_ERROR;
+}
+
+HRESULT extern WINAPI WFPRegister(HSERVICE hService, DWORD dwEventClass, HWND hWndReg, HWND hWnd, REQUESTID ReqID) {
+    HRESULT hResult = WFS_ERR_INTERNAL_ERROR;
+
+    TRACE("Executando o FPRegister...");
+
+    TRACE("hService: %d", hService);
+    TRACE("dwEventClass: %02x", hService);
+    TRACE("hWndReg: 02X", hService);
+    TRACE("hWnd: %d", hService);
+    TRACE("ReqId: %d", hService);
+
+    windows.push_back(hWndReg);
+    hResult = WFS_SUCCESS;
+
+    SendPostMessage(hWnd, hResult, hService, ReqID, WFS_REGISTER_COMPLETE);
+    //TO DO: Validar:  Já existe |Inválido
+
+
+    TRACE("WFPRegister Finalizado. hResult: %d", hResult);
+
     return 	WFS_ERR_INTERNAL_ERROR;
 }
 
@@ -85,10 +112,11 @@ HRESULT extern WINAPI WFPOpen(HSERVICE hService, LPCSTR lpszLogicalName, HAPP hA
 
     Sleep(2000);
 
+    hResult = WFS_SUCCESS;
     SendPostMessage(hWnd,hResult,hService,ReqID, WFS_OPEN_COMPLETE);
 
     TRACE("WFPOpen Finalizado. hResult: %d", hResult);
-    return WFS_SUCCESS;
+    return hResult;
 }
 
 
