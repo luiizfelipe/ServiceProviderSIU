@@ -31,7 +31,9 @@ HRESULT extern WINAPI WFPRegister(HSERVICE hService, DWORD dwEventClass, HWND hW
     windows.push_back(hWndReg);
     hResult = WFS_SUCCESS;
 
-    SendPostMessage(hWnd, hResult, hService, ReqID, WFS_REGISTER_COMPLETE);
+
+    LPWFSRESULT lpPostRest;
+    SendPostMessage(hWnd, hResult, hService, ReqID, WFS_REGISTER_COMPLETE, lpPostRest);
     //TO DO: Validar:  Já existe |Inválido
 
 
@@ -46,7 +48,25 @@ HRESULT extern WINAPI WFPDeregister(HSERVICE hService, DWORD dwEventClass, HWND 
 }
 
 HRESULT extern WINAPI WFPExecute(HSERVICE hService, DWORD dwCommand, LPVOID lpCmdData, DWORD dwTimeOut, HWND hWnd, REQUESTID ReqID){ 
-    TRACE("Entrei na função WFPExecute...");
+    TRACE("Executando o WFPExecute...");
+    
+    HRESULT hResult = WFS_ERR_INTERNAL_ERROR;
+
+    Sleep(2000);
+
+    hResult = WFS_SUCCESS;
+
+    LPWFSRESULT lpPostRest;
+    SendPostMessage(hWnd, hResult, hService, ReqID, WFS_REGISTER_COMPLETE, lpPostRest);
+
+    if (!lpPostRest) {
+        TRACE("Error WFPExecute: lpPostRest não existe valor"); // Validar posteriormente
+    }
+
+    for (HWND window : windows) {
+        PostMessage(window, WFS_SYSTEM_EVENT, 0, (LPARAM)lpPostRest);
+    }
+
     return 	WFS_ERR_INTERNAL_ERROR;
 }
 
@@ -136,8 +156,7 @@ HRESULT extern WINAPI WFPUnlock(HSERVICE hService, HWND hWnd, REQUESTID ReqID){
 }
 
 
-
-BOOL SendPostMessage(HWND hWnd, HRESULT hResult, HSERVICE hService,  REQUESTID ReqID, UINT Msg) {
+BOOL SendPostMessage(HWND hWnd, HRESULT hResult, HSERVICE hService,  REQUESTID ReqID, UINT Msg, OUT LPWFSRESULT lpPostRest) {
     WFSRESULT wfsResLocal;
     memset(&wfsResLocal, 0, sizeof(wfsResLocal));
 
@@ -146,7 +165,6 @@ BOOL SendPostMessage(HWND hWnd, HRESULT hResult, HSERVICE hService,  REQUESTID R
     wfsResLocal.RequestID = ReqID;
     GetSystemTime(&wfsResLocal.tsTimestamp);
 
-    LPWFSRESULT lpPostRest;
 
     if (WFMAllocateBuffer(sizeof(WFSRESULT), WFS_MEM_ZEROINIT | WFS_MEM_SHARE, (LPVOID*)&lpPostRest) != WFS_SUCCESS) {
         TRACE("Post Result: ERROR WFMAllocateBuffer");
