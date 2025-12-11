@@ -1,4 +1,6 @@
 #include "CServiceProvider.h"
+#include "CSession.h"
+#include "CObjectContainer.h"
 
 CCommand* CServiceProvider::removeCommmand()
 {
@@ -22,6 +24,11 @@ HRESULT CServiceProvider::allocateBuffer(LPWFSRESULT* bufferPointer)
     return res;
 }
 
+void CServiceProvider::setLogicalName(const char* logicalName)
+{
+    strcpy_s(m_logicalName, logicalName);
+}
+
 void CServiceProvider::setCommonData(LPWFSRESULT result, CCommand* cmd)
 {
     SYSTEMTIME time; 
@@ -41,10 +48,17 @@ void CServiceProvider::postMessageToWindow(CCommand* cmd)
         Sleep(32L);
     }
 }
+const char* CServiceProvider::getLogicalName() {
+    return this->m_logicalName;
+}
+
 
 HRESULT CServiceProvider::wfpOpen(CCommand* cmd)
 {
 
+    CSession* session = new CSession(this->getLogicalName(), cmd->getService());
+
+    CObjectContainer::addSession(session);
     return E_NOTIMPL;
 }
 
